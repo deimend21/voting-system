@@ -83,9 +83,9 @@ io.on('connection', (socket) => {
     console.log('🔌 用户断开:', socket.id);
   });
 
-  socket.on('typing', (data) => {
-    socket.broadcast.emit('user-typing', data);
-  });
+  // socket.on('typing', (data) => {
+  //   socket.broadcast.emit('user-typing', data);
+  // });
 });
 
 // 错误处理

@@ -14,6 +14,7 @@ const SOCKET_URL = isDevelopment
 let socket;
 let userChoices = { q1: null, q2: null, q3: null };
 let hasVoted = false;
+let votedInSession = false; // 跟踪用户是否在当前会话中投过票
 let currentPage = 1;
 let likedComments = new Set(JSON.parse(localStorage.getItem('likedComments') || '[]'));
 
@@ -179,13 +180,23 @@ function updateQuestionResult(question, data, options, labels) {
         </div>
     `).join('');
     
-    // 高亮获胜选项按钮
-    options.forEach(opt => {
-        const btn = document.querySelector(`[data-question="${question}"][data-option="${opt}"]`);
-        if (btn) {
-            btn.classList.toggle('winner', opt === winner && maxVotes > 0);
-        }
-    });
+    // 仅当用户在当前会话中投过票，才高亮获胜选项
+    if (votedInSession) {
+        options.forEach(opt => {
+            const btn = document.querySelector(`[data-question="${question}"][data-option="${opt}"]`);
+            if (btn) {
+                btn.classList.toggle('winner', opt === winner && maxVotes > 0);
+            }
+        });
+    } else {
+        // 如果用户还未投票，确保移除所有winner类
+        options.forEach(opt => {
+            const btn = document.querySelector(`[data-question="${question}"][data-option="${opt}"]`);
+            if (btn) {
+                btn.classList.remove('winner');
+            }
+        });
+    }
 }
 
 // 初始化事件监听器
@@ -267,6 +278,7 @@ async function submitVote() {
         
         if (data.success) {
             showResults();
+            votedInSession = true; // 标记用户已在本次会话中投票
             
             // 清除选中状态的视觉效果（移除高亮）
             document.querySelectorAll('.option-btn.selected').forEach(btn => {
