@@ -1,25 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const allowedOrigins = [
-  'http://localhost:8080',
-  'http://127.0.0.1:8080',
-  'http://localhost:5500',
-  'https://voting-system-rho-ten.vercel.app/'  // 替换为实际的 Vercel URL
-];
-
-app.use(cors({
-  origin: function(origin, callback) {
-    // 允许没有 origin 的请求（如移动应用、Postman）
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'CORS policy does not allow access from this origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true
-}));
+const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const http = require('http');
@@ -40,25 +21,37 @@ const io = socketIO(server, {
 
 // 中间件
 app.use(helmet());
-app.use(cors());
+
+// CORS 配置
+const allowedOrigins = [
+  'http://localhost:8080',
+  'http://127.0.0.1:8080',
+  'http://localhost:5500',
+  'https://voting-system-rho-ten.vercel.app'
+];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      return callback(new Error('Not allowed by CORS'), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // 速率限制
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15分钟
-  max: 100 // 限制100个请求
+  windowMs: 15 * 60 * 1000,
+  max: 100
 });
 app.use(limiter);
 
-// 投票专用限制
-const voteLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1小时
-  max: 10,
-  message: '投票请求过于频繁，请稍后再试'
-});
-
-// 将io实例附加到app，以便在路由中使用
+// 将io实例附加到app
 app.set('io', io);
 
 // 路由
@@ -70,14 +63,11 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });
 });
 
-// 静态文件服务（如果前端在同一服务器）
+// 静态文件服务
 app.use(express.static('public'));
 
 // 数据库连接
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/voting-system', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/voting-system')
 .then(() => console.log('✅ MongoDB连接成功'))
 .catch(err => console.error('❌ MongoDB连接失败:', err));
 
@@ -89,7 +79,6 @@ io.on('connection', (socket) => {
     console.log('🔌 用户断开:', socket.id);
   });
 
-  // 可以添加更多实时功能
   socket.on('typing', (data) => {
     socket.broadcast.emit('user-typing', data);
   });
