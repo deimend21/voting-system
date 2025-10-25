@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>假如少数服从多数 - 实时投票系统</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 标题 -->
+        <div class="header">
+            <h1 class="title">假如少数服从多数</h1>
+            <p class="subtitle">假如 3I-Atlas 是外星飞船...</p>
+            <div class="online-status">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="onlineCount">0</span> 人在线
+            </div>
+        </div>
+
+        <!-- 免责声明 -->
+        <div class="disclaimer">
+            ⚠️ 本网站仅为思想实验，旨在探讨民主决策的边界与哲学思考，不代表任何立场。
+        </div>
+
+        <!-- 投票区域 -->
+        <div id="votingSection">
+            <!-- 问题1 -->
+            <div class="question-block">
+                <h3 class="question-title">【问题1】你选择？</h3>
+                <div class="options">
+                    <button class="option-btn" data-question="q1" data-option="arrival">
+                        <span class="option-text">降临派</span>
+                        <span class="option-icon">🛸</span>
+                    </button>
+                    <button class="option-btn" data-question="q1" data-option="save">
+                        <span class="option-text">拯救派</span>
+                        <span class="option-icon">🦸</span>
+                    </button>
+                </div>
+                <div class="result-bar" id="result-q1"></div>
+            </div>
+
+            <!-- 问题2 -->
+            <div class="question-block">
+                <h3 class="question-title">【问题2】你想选择？</h3>
+                <div class="options">
+                    <button class="option-btn" data-question="q2" data-option="death">
+                        <span class="option-text">死亡</span>
+                        <span class="option-icon">💀</span>
+                    </button>
+                    <button class="option-btn" data-question="q2" data-option="live">
+                        <span class="option-text">活着</span>
+                        <span class="option-icon">❤️</span>
+                    </button>
+                </div>
+                <div class="result-bar" id="result-q2"></div>
+            </div>
+
+            <!-- 问题3 -->
+            <div class="question-block">
+                <h3 class="question-title">【问题3】人类应该？</h3>
+                <div class="options">
+                    <button class="option-btn" data-question="q3" data-option="exist">
+                        <span class="option-text">存在</span>
+                        <span class="option-icon">🌍</span>
+                    </button>
+                    <button class="option-btn" data-question="q3" data-option="extinct">
+                        <span class="option-text">灭绝</span>
+                        <span class="option-icon">☄️</span>
+                    </button>
+                </div>
+                <div class="result-bar" id="result-q3"></div>
+            </div>
+
+            <!-- 按钮组 -->
+            <div class="button-group">
+                <button class="submit-btn" id="submitBtn">提交投票</button>
+                <button class="result-btn" id="resultBtn">查看结果</button>
+            </div>
+
+            <!-- 统计信息 -->
+            <div class="stats" id="stats">
+                <div class="stats-title">总投票人数</div>
+                <div class="total-votes" id="totalVotes">0</div>
+            </div>
+        </div>
+
+        <!-- 评论区 -->
+        <div class="comments-section">
+            <h2 class="section-title">💭 思想交流区</h2>
+            
+            <!-- 发表评论 -->
+            <div class="comment-form">
+                <input 
+                    type="text" 
+                    id="nicknameInput" 
+                    placeholder="昵称（可选）" 
+                    maxlength="20"
+                    class="nickname-input"
+                >
+                <textarea 
+                    id="commentInput" 
+                    placeholder="分享你的思考...（最多500字）"
+                    maxlength="500"
+                    rows="4"
+                ></textarea>
+                <div class="comment-form-footer">
+                    <span class="char-count">
+                        <span id="charCount">0</span>/500
+                    </span>
+                    <button id="submitComment" class="submit-comment-btn">
+                        发表评论
+                    </button>
+                </div>
+            </div>
+
+            <!-- 评论列表 -->
+            <div class="comments-list" id="commentsList">
+                <!-- 评论将通过JS动态加载 -->
+            </div>
+
+            <!-- 加载更多 -->
+            <div class="load-more-container">
+                <button id="loadMoreBtn" class="load-more-btn">加载更多</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast提示 -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 加载指示器 -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- 引入Socket.IO -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
