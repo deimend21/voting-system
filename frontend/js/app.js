@@ -210,7 +210,7 @@ function initEventListeners() {
     document.querySelectorAll('.option-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             if (hasVoted) {
-                showToast('您已经投过票了！', 'error');
+                showToast('votedToast', 'error');
                 return;
             }
             
@@ -259,7 +259,7 @@ function updateSubmitButton() {
 // 提交投票
 async function submitVote() {
     if (!userChoices.q1 || !userChoices.q2 || !userChoices.q3) {
-        showToast('请完成所有问题的选择！', 'error');
+        showToast('allQuestionsToast', 'error');
         return;
     }
     
@@ -292,18 +292,18 @@ async function submitVote() {
             hasVoted = false;
             updateSubmitButton();
             
-            showToast('投票成功！感谢您的参与。', 'success');
+            showToast('voteSuccessToast', 'success');
             
             // Socket.IO会自动推送更新，但我们也手动更新一次
             if (data.stats) {
                 updateResults(data.stats);
             }
         } else {
-            showToast(data.message || '投票失败', 'error');
+            showToast(data.message || 'voteFailToast', 'error');
         }
     } catch (error) {
         console.error('提交投票失败:', error);
-        showToast('网络错误，请稍后重试', 'error');
+        showToast('networkErrorToast', 'error');
     } finally {
         showLoading(false);
     }
@@ -358,6 +358,7 @@ async function loadComments(page = 1) {
         }
     } catch (error) {
         console.error('加载评论失败:', error);
+        // Toast for loading comments failure - can be internationalized if needed
         showToast('加载评论失败', 'error');
     } finally {
         showLoading(false);
@@ -447,11 +448,13 @@ async function submitComment() {
     const nickname = document.getElementById('nicknameInput').value.trim() || '匿名用户';
     
     if (!content) {
+        // Toast for empty comment - can be internationalized if needed
         showToast('请输入评论内容', 'error');
         return;
     }
     
     if (content.length > 500) {
+        // Toast for long comment - can be internationalized if needed
         showToast('评论内容过长', 'error');
         return;
     }
@@ -470,6 +473,7 @@ async function submitComment() {
         const data = await response.json();
         
         if (data.success) {
+            // Toast for comment success - can be internationalized if needed
             showToast('评论发表成功！', 'success');
             document.getElementById('commentInput').value = '';
             document.getElementById('nicknameInput').value = '';
@@ -478,11 +482,12 @@ async function submitComment() {
             // Socket.IO会推送新评论，但我们也可以手动添加
             // prependComment(data.comment);
         } else {
+            // Toast for comment failure - can be internationalized if needed
             showToast(data.message || '评论发表失败', 'error');
         }
     } catch (error) {
         console.error('提交评论失败:', error);
-        showToast('网络错误，请稍后重试', 'error');
+        showToast('networkErrorToast', 'error');
     } finally {
         showLoading(false);
     }
@@ -511,6 +516,7 @@ async function likeComment(commentId) {
         }
     } catch (error) {
         console.error('点赞失败:', error);
+        // Toast for like failure - can be internationalized if needed
         showToast('操作失败', 'error');
     }
 }

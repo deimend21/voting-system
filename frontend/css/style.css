@@ -656,3 +656,54 @@ body {
         gap: 10px;
     }
 }
+/* 语言选择模态框 */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: var(--bg-card);
+    padding: 40px;
+    border: 2px solid var(--border-color);
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 0 50px rgba(0, 150, 255, 0.2);
+}
+
+.modal-content h2 {
+    margin-bottom: 30px;
+    font-size: 1.8em;
+    color: #fff;
+}
+
+.lang-buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.lang-btn {
+    padding: 15px 40px;
+    font-size: 1.2em;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    background: rgba(0, 100, 200, 0.2);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.lang-btn:hover {
+    background: rgba(0, 150, 255, 0.4);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
