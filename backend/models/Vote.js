@@ -26,7 +26,6 @@ const voteSchema = new mongoose.Schema({
   }
 });
 
-// 复合索引：防止同一IP对同一问题重复投票
-voteSchema.index({ question: 1, ip: 1 }, { unique: true });
+voteSchema.index({ timestamp: -1 });
 
 module.exports = mongoose.model('Vote', voteSchema);
