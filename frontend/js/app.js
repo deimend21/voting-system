@@ -19,18 +19,69 @@ let currentPage = 1;
 let likedComments = new Set(JSON.parse(localStorage.getItem('likedComments') || '[]'));
 
 // 初始化
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
+    initLangSwitcher();
+});
+
+// 初始化语言切换器
+function initLangSwitcher() {
+    const savedLang = localStorage.getItem('language');
+
+    document.getElementById('lang-zh').addEventListener('click', () => selectLanguage('zh'));
+    document.getElementById('lang-en').addEventListener('click', () => selectLanguage('en'));
+
+    if (!savedLang) {
+        document.getElementById('lang-modal').style.display = 'flex';
+    } else {
+        startApp(savedLang);
+    }
+}
+
+// 用户选择语言
+function selectLanguage(lang) {
+    localStorage.setItem('language', lang);
+    document.getElementById('lang-modal').style.display = 'none';
+    startApp(lang);
+}
+
+// 根据语言设置文本并启动应用
+async function startApp(lang) {
+    setLanguage(lang);
+    // 显示主容器
+    document.querySelectorAll('.container').forEach(c => c.style.display = 'block');
+    document.getElementById('commentsContainer').style.display = 'block'; // 确保评论容器也显示
+
+    // 运行所有初始化函数
     initStars();
     initSocket();
     await checkVoteStatus();
     await loadStats();
     await loadComments();
     initEventListeners();
-});
+}
+
+// 设置页面语言
+function setLanguage(lang) {
+    const translation = translations[lang];
+    document.querySelectorAll('[data-i18n-key]').forEach(el => {
+        const key = el.dataset.i18nKey;
+        if (translation[key]) {
+            if (el.hasAttribute('data-i18n-is-placeholder')) {
+                el.placeholder = translation[key];
+            } else {
+                el.textContent = translation[key];
+            }
+        }
+    });
+    document.documentElement.lang = lang;
+    document.title = translation.pageTitle;
+}
+
 
 // 创建星空
 function initStars() {
     const starsContainer = document.getElementById('stars');
+    if (starsContainer.children.length > 0) return; // 防止重复创建
     for (let i = 0; i < 100; i++) {
         const star = document.createElement('div');
         star.className = 'star';
@@ -45,6 +96,7 @@ function initStars() {
 
 // 初始化Socket.IO
 function initSocket() {
+    if (socket) return; // 防止重复连接
     socket = io(SOCKET_URL);
     
     socket.on('connect', () => {
@@ -86,7 +138,6 @@ function updateOnlineStatus(isOnline) {
     statusDot.classList.toggle('offline', !isOnline);
 }
 
-// 检查投票状态
 // 检查投票状态（移除限制版）
 async function checkVoteStatus() {
     // 不再检查是否已投票，允许无限投票
@@ -137,11 +188,19 @@ function updateQuestionResult(question, data, options, labels) {
     const resultContainer = document.getElementById(`result-${question}`);
     const total = options.reduce((sum, opt) => sum + (data[opt] || 0), 0);
     
+    const lang = localStorage.getItem('language') || 'zh';
+    const i18nLabels = {
+        q1: { arrival: translations[lang].q1Opt1, save: translations[lang].q1Opt2 },
+        q2: { death: translations[lang].q2Opt1, live: translations[lang].q2Opt2 },
+        q3: { exist: translations[lang].q3Opt1, extinct: translations[lang].q3Opt2 }
+    };
+    const currentLabels = i18nLabels[question];
+
     if (total === 0) {
         resultContainer.innerHTML = options.map(opt => `
             <div class="result-item">
                 <div class="result-label">
-                    <span>${labels[opt]}</span>
+                    <span>${currentLabels[opt]}</span>
                     <span>0%</span>
                 </div>
                 <div class="progress-bar">
@@ -164,7 +223,7 @@ function updateQuestionResult(question, data, options, labels) {
             winner = opt;
         }
         
-        return { opt, votes, percent, label: labels[opt] };
+        return { opt, votes, percent, label: currentLabels[opt] };
     });
     
     resultContainer.innerHTML = results.map(({ opt, percent, label }) => `
@@ -406,7 +465,7 @@ function createCommentElement(comment) {
                 <div class="user-avatar">${userInitial}</div>
                 <div class="user-info">
                     <div class="user-nickname">${escapeHtml(comment.nickname)}</div>
-                    <div class="user-location">📍 ${comment.ipInfo?.city || '未知'}, ${comment.ipInfo?.country || '未知'}</div>
+                    <div class="user-location">📍 ${comment.ipInfo?.city || 'Unknown'}, ${comment.ipInfo?.country || 'Unknown'}</div>
                 </div>
             </div>
             <div class="comment-time">${timeAgo}</div>
@@ -434,12 +493,13 @@ function createCommentElement(comment) {
 
 // 获取投票标签
 function getVoteLabel(question, option) {
+    const lang = localStorage.getItem('language') || 'zh';
     const labels = {
-        q1: { arrival: '🛸 降临派', save: '🦸 拯救派' },
-        q2: { death: '💀 死亡', live: '❤️ 活着' },
-        q3: { exist: '🌍 存在', extinct: '☄️ 灭绝' }
+        q1: { arrival: translations[lang].q1Opt1, save: translations[lang].q1Opt2 },
+        q2: { death: translations[lang].q2Opt1, live: translations[lang].q2Opt2 },
+        q3: { exist: translations[lang].q3Opt1, extinct: translations[lang].q3Opt2 }
     };
-    return labels[question]?.[option] || '';
+    return `[${labels[question]?.[option] || ''}]`;
 }
 
 // 提交评论
@@ -448,13 +508,11 @@ async function submitComment() {
     const nickname = document.getElementById('nicknameInput').value.trim() || '匿名用户';
     
     if (!content) {
-        // Toast for empty comment - can be internationalized if needed
         showToast('请输入评论内容', 'error');
         return;
     }
     
     if (content.length > 500) {
-        // Toast for long comment - can be internationalized if needed
         showToast('评论内容过长', 'error');
         return;
     }
@@ -473,16 +531,11 @@ async function submitComment() {
         const data = await response.json();
         
         if (data.success) {
-            // Toast for comment success - can be internationalized if needed
             showToast('评论发表成功！', 'success');
             document.getElementById('commentInput').value = '';
             document.getElementById('nicknameInput').value = '';
             document.getElementById('charCount').textContent = '0';
-            
-            // Socket.IO会推送新评论，但我们也可以手动添加
-            // prependComment(data.comment);
         } else {
-            // Toast for comment failure - can be internationalized if needed
             showToast(data.message || '评论发表失败', 'error');
         }
     } catch (error) {
@@ -503,20 +556,15 @@ async function likeComment(commentId) {
         const data = await response.json();
         
         if (data.success) {
-            // 更新本地状态
             if (data.hasLiked) {
                 likedComments.add(commentId);
             } else {
                 likedComments.delete(commentId);
             }
             localStorage.setItem('likedComments', JSON.stringify([...likedComments]));
-            
-            // 更新UI会通过Socket.IO推送
-            // updateCommentLikes(commentId, data.likes);
         }
     } catch (error) {
         console.error('点赞失败:', error);
-        // Toast for like failure - can be internationalized if needed
         showToast('操作失败', 'error');
     }
 }
@@ -525,15 +573,14 @@ async function likeComment(commentId) {
 function updateCommentLikes(commentId, likes) {
     const commentEl = document.querySelector(`[data-comment-id="${commentId}"]`);
     if (commentEl) {
-        const likeBtn = commentEl.closest('.comment-item').querySelector('.like-btn');
-        const likeCount = likeBtn.querySelector('.like-count');
-        const likeIcon = likeBtn.querySelector('.like-icon');
+        const likeCount = commentEl.querySelector('.like-count');
+        const likeIcon = commentEl.querySelector('.like-icon');
+        const likeBtn = commentEl.querySelector('.like-btn');
         
         likeCount.textContent = likes;
-        
         const isLiked = likedComments.has(commentId);
-        likeBtn.classList.toggle('liked', isLiked);
         likeIcon.textContent = isLiked ? '❤️' : '🤍';
+        likeBtn.classList.toggle('liked', isLiked);
     }
 }
 
@@ -576,18 +623,19 @@ function escapeHtml(text) {
 }
 
 // 显示Toast
-function showToast(message, type = 'info') {
+function showToast(key, type = 'info') {
+    const lang = localStorage.getItem('language') || 'zh';
+    const message = translations[lang][key] || key;
     const toast = document.getElementById('toast');
     toast.textContent = message;
-    toast.className = `toast ${type}`;
-    toast.classList.add('show');
+    toast.className = `toast show ${type}`;
     
     setTimeout(() => {
-        toast.classList.remove('show');
+        toast.className = toast.className.replace('show', '');
     }, 3000);
 }
 
 // 显示/隐藏加载指示器
 function showLoading(show) {
-    document.getElementById('loading').classList.toggle('show', show);
+    document.getElementById('loading').style.display = show ? 'flex' : 'none';
 }
