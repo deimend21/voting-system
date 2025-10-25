@@ -22,21 +22,25 @@ const io = socketIO(server, {
 // 中间件
 app.use(helmet());
 
-const allowedOrigins = [
-  'http://localhost:8080',
-  'http://127.0.0.1:8080',
-  'http://localhost:5500',
-  'https://voting-system-1xsv.vercel.app',      // ✅ 新的生产 URL
-  'https://voting-system-rho-ten.vercel.app'    // 保留旧 URL（预防）
-];
-
+// CORS 配置 - 支持所有 Vercel 部署
 app.use(cors({
   origin: function(origin, callback) {
+    // 允许没有 origin 的请求（如 Postman、移动应用）
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      return callback(new Error('Not allowed by CORS'), false);
+    
+    // 允许本地开发环境
+    if (origin.startsWith('http://localhost') || 
+        origin.startsWith('http://127.0.0.1')) {
+      return callback(null, true);
     }
-    return callback(null, true);
+    
+    // 允许所有 Vercel 部署（生产、预览、分支部署）
+    if (origin.includes('.vercel.app')) {
+      return callback(null, true);
+    }
+    
+    // 拒绝其他来源
+    return callback(new Error('Not allowed by CORS'), false);
   },
   credentials: true
 }));
