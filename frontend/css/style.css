@@ -143,7 +143,7 @@ body {
 .question-title {
     font-size: 1.3em;
     margin-bottom: 20px;
-    color: #64c8ff;
+    color: #fff;
 }
 
 /* 选项按钮 */
@@ -158,8 +158,8 @@ body {
     min-width: 150px;
     padding: 15px 25px;
     font-size: 1.1em;
-    border: 2px solid rgba(100, 200, 255, 0.4);
-    background: rgba(0, 100, 200, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.5);
     color: #fff;
     border-radius: 10px;
     cursor: pointer;
@@ -183,15 +183,14 @@ body {
     box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
 }
 
-.option-btn.selected {
-    border-color: var(--success-color);
-    background: rgba(0, 255, 136, 0.2);
-    box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+.option-btn.selected,
+.option-btn.winner {
+    border-color: var(--warning-color);
+    background: rgba(255, 215, 0, 0.25);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
 }
 
 .option-btn.winner {
-    border-color: var(--warning-color);
-    background: rgba(255, 215, 0, 0.2);
     animation: pulse 2s infinite;
 }
 
@@ -247,13 +246,13 @@ body {
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    background: var(--warning-color);
     border-radius: 4px;
     transition: width 0.5s ease;
 }
 
 .progress-fill.winner-bar {
-    background: linear-gradient(90deg, var(--warning-color), #ffed4e);
+    background: var(--warning-color);
 }
 
 /* 按钮组 */
