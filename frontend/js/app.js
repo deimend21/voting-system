@@ -290,6 +290,12 @@ async function submitVote() {
             hasVoted = true;
             disableVoting();
             showResults();
+            
+            // 清除选中状态的视觉效果（移除高亮）
+            document.querySelectorAll('.option-btn.selected').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
             showToast('投票成功！感谢您的参与。', 'success');
             
             // Socket.IO会自动推送更新，但我们也手动更新一次
