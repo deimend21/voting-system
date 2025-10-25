@@ -86,31 +86,10 @@ function updateOnlineStatus(isOnline) {
 }
 
 // 检查投票状态
+// 检查投票状态（移除限制版）
 async function checkVoteStatus() {
-    try {
-        const response = await fetch(`${API_URL}/votes/check`);
-        const data = await response.json();
-        
-        if (data.success) {
-            hasVoted = data.hasVoted;
-            
-            if (hasVoted) {
-                // 显示用户的投票
-                Object.entries(data.votes).forEach(([question, option]) => {
-                    if (option) {
-                        const btn = document.querySelector(`[data-question="${question}"][data-option="${option}"]`);
-                        if (btn) btn.classList.add('selected');
-                    }
-                });
-                
-                // 禁用所有选项
-                disableVoting();
-                showResults();
-            }
-        }
-    } catch (error) {
-        console.error('检查投票状态失败:', error);
-    }
+    // 不再检查是否已投票，允许无限投票
+    hasVoted = false;
 }
 
 // 加载统计数据
@@ -211,6 +190,11 @@ function updateQuestionResult(question, data, options, labels) {
 
 // 初始化事件监听器
 function initEventListeners() {
+    // 初始化时清除所有选项的选中状态，确保新用户看到干净的界面
+    document.querySelectorAll('.option-btn.selected').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+
     // 选项点击
     document.querySelectorAll('.option-btn').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -268,11 +252,6 @@ async function submitVote() {
         return;
     }
     
-    if (hasVoted) {
-        showToast('您已经投过票了！', 'error');
-        return;
-    }
-    
     showLoading(true);
     
     try {
@@ -287,14 +266,19 @@ async function submitVote() {
         const data = await response.json();
         
         if (data.success) {
-            hasVoted = true;
-            disableVoting();
             showResults();
             
             // 清除选中状态的视觉效果（移除高亮）
             document.querySelectorAll('.option-btn.selected').forEach(btn => {
                 btn.classList.remove('selected');
             });
+
+            // 重置用户选择
+            userChoices = { q1: null, q2: null, q3: null };
+            
+            // 允许再次投票
+            hasVoted = false;
+            updateSubmitButton();
             
             showToast('投票成功！感谢您的参与。', 'success');
             
