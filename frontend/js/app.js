@@ -1,6 +1,14 @@
 // 配置
-const API_URL = 'http://localhost:3000/api';
-const SOCKET_URL = 'http://localhost:3000';
+const isDevelopment = window.location.hostname === 'localhost' || 
+                      window.location.hostname === '127.0.0.1';
+
+const API_URL = isDevelopment 
+  ? 'http://localhost:3000/api'
+  : 'https://voting-system-production-ef7c.up.railway.app/api';
+
+const SOCKET_URL = isDevelopment
+  ? 'http://localhost:3000'
+  : 'https://voting-system-production-ef7c.up.railway.app';
 
 // 全局变量
 let socket;

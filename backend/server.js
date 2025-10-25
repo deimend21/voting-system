@@ -1,6 +1,25 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
+const allowedOrigins = [
+  'http://localhost:8080',
+  'http://127.0.0.1:8080',
+  'http://localhost:5500',
+  'https://voting-system-rho-ten.vercel.app/'  // 替换为实际的 Vercel URL
+];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // 允许没有 origin 的请求（如移动应用、Postman）
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'CORS policy does not allow access from this origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true
+}));
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const http = require('http');
