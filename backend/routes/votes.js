@@ -45,7 +45,7 @@ router.get('/check', addIPInfo, async (req, res) => {
       q3: votes.find(v => v.question === 'q3')?.option || null
     };
 
-    const hasVoted = votes.length === 3;
+    const hasVoted = false; // 始终允许投票
 
     res.json({
       success: true,
@@ -66,11 +66,8 @@ router.post('/submit', addIPInfo, async (req, res) => {
       return res.status(400).json({ success: false, message: '无效的投票数据' });
     }
 
-    // 检查是否已投票
-    const existingVotes = await Vote.find({ ip: req.clientIP });
-    if (existingVotes.length > 0) {
-      return res.status(400).json({ success: false, message: '您已经投过票了' });
-    }
+    // 删除该IP之前的投票记录，以允许重新投票
+    await Vote.deleteMany({ ip: req.clientIP });
 
     // 验证投票数据
     const validVotes = {
