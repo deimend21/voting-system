@@ -78,14 +78,19 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/voting-sy
 // Socket.IO 连接处理
 io.on('connection', (socket) => {
   console.log('🔌 新用户连接:', socket.id);
+  
+  // 更新并广播在线人数
+  const onlineCount = io.engine.clientsCount;
+  io.emit('online-count-update', onlineCount);
 
   socket.on('disconnect', () => {
     console.log('🔌 用户断开:', socket.id);
+    // 延迟更新，确保断开后计数准确
+    setTimeout(() => {
+        const updatedOnlineCount = io.engine.clientsCount;
+        io.emit('online-count-update', updatedOnlineCount);
+    }, 100);
   });
-
-  // socket.on('typing', (data) => {
-  //   socket.broadcast.emit('user-typing', data);
-  // });
 });
 
 // 错误处理

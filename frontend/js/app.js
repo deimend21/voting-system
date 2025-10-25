@@ -130,6 +130,11 @@ function initSocket() {
     socket.on('comment-deleted', (commentId) => {
         removeComment(commentId);
     });
+
+    // 监听在线人数更新
+    socket.on('online-count-update', (count) => {
+        document.getElementById('onlineCount').textContent = count;
+    });
 }
 
 // 更新在线状态
