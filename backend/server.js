@@ -22,12 +22,12 @@ const io = socketIO(server, {
 // 中间件
 app.use(helmet());
 
-// CORS 配置
 const allowedOrigins = [
   'http://localhost:8080',
   'http://127.0.0.1:8080',
   'http://localhost:5500',
-  'https://voting-system-rho-ten.vercel.app'
+  'https://voting-system-1xsv.vercel.app',      // ✅ 新的生产 URL
+  'https://voting-system-rho-ten.vercel.app'    // 保留旧 URL（预防）
 ];
 
 app.use(cors({
