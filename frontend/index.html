@@ -1,11 +1,23 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
+    <!-- Google tag (gtag.js) - 建议放在这里，作为 head 中的第一项 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WTQNGCZQSN"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-WTQNGCZQSN');
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n-key="pageTitle">假如少数服从多数 - 实时投票系统</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <!-- 星空背景 -->
     <div class="stars" id="stars"></div>
@@ -107,8 +119,10 @@
         <div class="comments-section">
             <h2 class="section-title" data-i18n-key="commentsTitle">评论区</h2>
             <div class="comment-form">
-                <input type="text" id="nicknameInput" class="nickname-input" placeholder="输入你的昵称（可选）" maxlength="20" data-i18n-key="nicknamePlaceholder" data-i18n-is-placeholder>
-                <textarea id="commentInput" placeholder="留下你的看法..." maxlength="500" data-i18n-key="commentPlaceholder" data-i18n-is-placeholder></textarea>
+                <input type="text" id="nicknameInput" class="nickname-input" placeholder="输入你的昵称（可选）" maxlength="20"
+                    data-i18n-key="nicknamePlaceholder" data-i18n-is-placeholder>
+                <textarea id="commentInput" placeholder="留下你的看法..." maxlength="500" data-i18n-key="commentPlaceholder"
+                    data-i18n-is-placeholder></textarea>
                 <div class="comment-form-footer">
                     <span class="char-count" id="charCount">0</span>/500
                     <button id="submitComment" class="submit-comment-btn" data-i18n-key="submitCommentBtn">发表评论</button>
@@ -134,4 +148,5 @@
     <script src="js/i18n.js"></script>
     <script src="js/app.js"></script>
 </body>
+
 </html>
